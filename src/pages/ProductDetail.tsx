@@ -6,6 +6,7 @@ import {ProductDetails} from '../services/types';
 import ImageGallery from '../components/ImageGallery';
 import {useCart} from '../context/CartContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddToCartButton from "../components/AddToCartButton";
 
 // Add this helper function at the top
 const getImageType = (base64?: string | null) => {
@@ -82,18 +83,7 @@ export default function ProductDetail() {
                         {product.description || 'No description available'}
                     </Typography>
 
-                    <Button
-                        variant="contained"
-                        size="large"
-                        onClick={() => addToCart({
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            image: product?.images?.[0] || '' // Add fallback
-                        })}
-                    >
-                        Add to Cart
-                    </Button>
+                    <AddToCartButton product={product} />
                 </Grid>
             </Grid>
         </Container>

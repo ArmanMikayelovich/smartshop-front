@@ -1,17 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { get, set, del, clear } from 'idb-keyval';
+import {CartItem, mapToCartItem, Product, ProductDetails} from "../services/types";
 
-interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
-    image?: string; // Consider storing thumbnail URLs instead of base64
-}
+
 
 interface CartContextType {
     cartItems: CartItem[];
-    addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+    addToCart: (product: Product | ProductDetails) => void; // Updated type
     removeFromCart: (id: number) => void;
     updateQuantity: (id: number, quantity: number) => void;
     clearCart: () => Promise<void>;
@@ -34,10 +29,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
             } catch (error) {
                 console.error('Failed to load cart:', error);
                 setCartItems([]);
+            } finally {
+                setIsInitialized(true);
             }
-            setIsInitialized(true);
         };
-        initializeCart();
+
+        // Handle the promise properly
+        initializeCart().catch((error) => {
+            console.error('Cart initialization failed:', error);
+            setCartItems([]);
+            setIsInitialized(true);
+        });
     }, []);
 
     // Save cart to IndexedDB on changes
@@ -57,14 +59,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+    const addToCart = (product: Product | ProductDetails) => {
+        const cartItem = mapToCartItem(product);
+
         setCartItems(prev => {
-            const existing = prev.find(i => i.id === item.id);
+            const existing = prev.find(i => i.id === cartItem.id);
             return existing
                 ? prev.map(i =>
-                    i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+                    i.id === cartItem.id
+                        ? { ...i, quantity: i.quantity + 1 }
+                        : i
                 )
-                : [...prev, { ...item, quantity: 1 }];
+                : [...prev, { ...cartItem, quantity: 1 }];
         });
     };
 

@@ -16,3 +16,23 @@ export interface ProductDetails {
     description: string;
     available: true
 }
+
+export interface CartItem {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string; // Consider storing thumbnail URLs instead of base64
+}
+
+// Helper function to normalize products
+export const mapToCartItem = (product: Product | ProductDetails): Omit<CartItem, 'quantity'> => {
+    return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: 'mainImage' in product
+            ? product.mainImage
+            : product.images?.[0] // Take first image from array if exists
+    };
+};

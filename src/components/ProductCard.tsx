@@ -1,20 +1,9 @@
-import {Card, CardMedia, CardContent, Button, Typography, CardActionArea} from '@mui/material';
-import {useCart} from '../context/CartContext';
+import {Card, CardActionArea, CardContent, CardMedia, Typography} from '@mui/material';
 import {Product} from "../services/types";
 import {Link} from "react-router-dom";
-
+import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({product}: { product: Product }) {
-    const {addToCart} = useCart();
-
-    const handleAddToCart = () => {
-        addToCart({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.mainImage,
-        });
-    };
 
     return (
         <Card sx={{
@@ -51,22 +40,10 @@ export default function ProductCard({product}: { product: Product }) {
                     <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
                         Category: {product.categoryName}
                     </Typography>
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        sx={{
-                            mt: 2,
-                            fontWeight: 'bold',
-                            textTransform: 'none',
-                            borderRadius: '8px'
-                        }}
-                        onClick={handleAddToCart}
-                    >
-                        Add to Cart
-                    </Button>
+
                 </CardContent>
             </CardActionArea>
+            <AddToCartButton product={product}/>
         </Card>
     );
 }
